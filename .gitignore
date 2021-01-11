@@ -1,0 +1,11 @@
+data/*
+test_images/*
+model/outputs/
+checkpoints/
+model/images/
+outputs_copy
+model/__pycache__/*
+*.vim
+*.vim !
+*.pth
+*.png
