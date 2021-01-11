@@ -6,6 +6,11 @@ model/images/
 venv
 outputs_copy
 model/__pycache__/*
+model/__MACOSX/
+model/dataset
+model/.vscode/
+*/__pycache__
+*/.DS_Store
 *.vim
 *.vim !
 *.pth
