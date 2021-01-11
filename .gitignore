@@ -3,6 +3,7 @@ test_images/*
 model/outputs/
 checkpoints/
 model/images/
+venv
 outputs_copy
 model/__pycache__/*
 *.vim

@@ -7,6 +7,8 @@ from torch.utils.data import DataLoader
 import torch.nn as nn
 import torch.optim as optim
 from torchvision.utils import save_image
+from utils import upload_single_file_to_gcs
+from google.cloud import storage
 
 import numpy as np
 
@@ -15,6 +17,9 @@ import argparse
 
 import models
 import datasets
+
+storage_client = storage.Client()
+bucket = storage_client.bucket("semantic_inpainting")
 
 
 def get_arguments():
@@ -25,9 +30,10 @@ def get_arguments():
     parser.add_argument(
         "--train-data-dir",
         type=str,
-        default="/app/dataset/tiny-imagenet-200/train",
+        default="/app/dataset/train/",
     )
 
+    parser.add_argument("--upload-model-interval", type=int, default=10)
     parser.add_argument("--latent-dim", type=int, default=100)
     parser.add_argument("--img-size", type=int, default=96)
     parser.add_argument("--channels", type=int, default=3)
@@ -52,6 +58,10 @@ def weights_init_normal(m):
 
 def train(args):
     print("Starting training ...")
+    if not os.path.exists("./images"):
+        os.mkdir("images")
+    if not os.path.exists("./checkpoints"):
+        os.mkdir("checkpoints")
     epoch = 0
     dataset = datasets.GANImages(args.train_data_dir)
     dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
@@ -142,6 +152,9 @@ def train(args):
             },
             args.model_path,
         )
+
+        if epoch % args.upload_model_interval == 0:
+            upload_single_file_to_gcs(args.model_path, bucket, "semantic_gan_model.pth")
 
         if epoch % args.checkpoint_interval == 0:
             torch.save(
